@@ -93,9 +93,9 @@ if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVE
 	@list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
 }
 
-// Apply timezone
-if (!empty($defaults['TZ'])) {
-    date_default_timezone_set($defaults['TZ']);
+// Apply timezone (ENV > config.local.php > default)
+if (defined(__NAMESPACE__ . '\TZ') && TZ) {
+	date_default_timezone_set(TZ);
 }
 
 $gpodder = new GPodder;
