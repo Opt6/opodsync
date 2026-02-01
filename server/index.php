@@ -1,10 +1,5 @@
 <?php
 
-// Apply timezone from environment if provided (e.g. Docker TZ)
-if (getenv('TZ')) {
-    @date_default_timezone_set(getenv('TZ'));
-}
-
 namespace OPodSync;
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -18,6 +13,11 @@ if (PHP_SAPI === 'cli-server'
 }
 
 require_once __DIR__ . '/_inc.php';
+
+// Apply timezone from environment if provided (e.g. Docker TZ)
+if (getenv('TZ')) {
+    @date_default_timezone_set(getenv('TZ'));
+}
 
 try {
 	// Try to handle API requests first

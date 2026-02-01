@@ -44,6 +44,7 @@ $defaults = [
 	'TITLE'                        => 'My oPodSync server',
 	'DEBUG_LOG'                    => null,
 	'HTTP_SCHEME'                  => !empty($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http',
+	'TZ'                           => 'Etc/UTC',
 ];
 
 foreach ($defaults as $const => $value) {
@@ -90,6 +91,11 @@ if (!is_dir(DATA_ROOT)) {
 // Fix issues with badly configured web servers
 if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
 	@list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+}
+
+// Apply timezone
+if (!empty($defaults['TZ'])) {
+    date_default_timezone_set($defaults['TZ']);
 }
 
 $gpodder = new GPodder;
