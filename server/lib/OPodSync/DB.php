@@ -24,6 +24,8 @@ class DB extends \SQLite3
 		$setup = !file_exists($file);
 
 		parent::__construct($file);
+		// Ensure SQLite waits instead of failing immediately on concurrent access
+		$this->exec('PRAGMA busy_timeout = 5000;');
 
 		$mode = strtoupper(SQLITE_JOURNAL_MODE);
 		$set_mode = $this->querySingle('PRAGMA journal_mode;');
@@ -54,6 +56,9 @@ class DB extends \SQLite3
 	}
 
 	public function migrate() {
+		// Prevent concurrent migration execution (WAL + multi-request safety)
+		$this->exec('BEGIN IMMEDIATE;');
+
 		$v = $this->firstColumn('PRAGMA user_version;');
 
 		if ($v < self::VERSION) {
@@ -79,6 +84,7 @@ class DB extends \SQLite3
 		}
 
 		$this->simple(sprintf('PRAGMA user_version = %d;', self::VERSION));
+	    $this->exec('COMMIT;');
 	}
 
 	public function upsert(string $table, array $params, array $conflict_columns)
