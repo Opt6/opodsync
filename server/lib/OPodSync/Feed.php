@@ -62,10 +62,17 @@ class Feed
 			curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: oPodSync']);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-			curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 
-			$body = @curl_exec($ch);
+            // Stream response to avoid loading large feeds into memory
+            $tmp = fopen('php://temp', 'w+');
+            curl_setopt($ch, CURLOPT_FILE, $tmp);
+
+            @curl_exec($ch);
+
+            rewind($tmp);
+            $body = stream_get_contents($tmp);
+            fclose($tmp);
 
 			if (false === $body) {
 				$error = curl_error($ch);
