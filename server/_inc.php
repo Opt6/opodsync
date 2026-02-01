@@ -55,6 +55,11 @@ foreach ($defaults as $const => $value) {
 	define(__NAMESPACE__ . '\\' . $const, getenv($const) ?: $value);
 }
 
+// Apply timezone (ENV > config.local.php > default)
+if (defined(__NAMESPACE__ . '\TZ') && TZ) {
+	date_default_timezone_set(TZ);
+}
+
 if (!defined(__NAMESPACE__ . '\BASE_URL')) {
 	$name = $_SERVER['SERVER_NAME'];
 	$port = !in_array($_SERVER['SERVER_PORT'], [80, 443]) ? ':' . $_SERVER['SERVER_PORT'] : '';
@@ -91,11 +96,6 @@ if (!is_dir(DATA_ROOT)) {
 // Fix issues with badly configured web servers
 if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
 	@list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
-}
-
-// Apply timezone (ENV > config.local.php > default)
-if (defined(__NAMESPACE__ . '\TZ') && TZ) {
-	date_default_timezone_set(TZ);
 }
 
 $gpodder = new GPodder;
